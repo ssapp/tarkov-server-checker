@@ -67,13 +67,13 @@ func (s *Systray) startTickerLoop() {
 	for range s.ticker.C {
 		ip, err := s.logReader.GetIP()
 		if err != nil {
-			s.updateState(formatTooltip("Unable to get Server's IP address", "", err.Error()))
+			s.updateState(formatTooltip("Unable to get Server's IP address", err.Error(), ""))
 			continue
 		}
 
 		loc, err := log.GetLocation(ip)
 		if err != nil {
-			s.updateState(formatTooltip("Unable to get Server's Location", "", err.Error()))
+			s.updateState(formatTooltip("Unable to get Server's Location", err.Error(), ""))
 			continue
 		}
 
