@@ -7,7 +7,7 @@ Tarkov Server Checker is a small and lightweight tool that runs in the system tr
 <p align="center">
 <img align="left" src="./resources/screenshots/screenshot-1.png">
 </p>
-
+<br />
 <p align="center">
 <img align="right" src="./resources/screenshots/screenshot-2.png">
 </p>
