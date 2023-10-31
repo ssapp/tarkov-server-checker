@@ -4,34 +4,17 @@
 
 Tarkov Server Checker is a small and lightweight tool that runs in the system tray, it retrieves and displays the most recent server's IP address and location from game's logs.
 
-![Tarkov Server Checker Screenshot](./screenshot.png)
+<p align="center">
+<img align="left" src="./resources/screenshots/screenshot-1.png">
+</p>
+
+<p align="center">
+<img align="right" src="./resources/screenshots/screenshot-2.png">
+</p>
 
 ## Installation
 
-To install Tarkov Server Checker, follow these steps:
-
-1. Clone the repository:
-   ```shell
-   git clone https://github.com/ssapp/tarkov-server-checker.git
-   ```
-
-2. Build the program using Golang:
-   ```shell
-   go build
-   ```
-
-3. Run the program:
-   ```shell
-   ./tarkov-server-checker
-   ```
-
-## Usage
-
-Once the program is running, it will appear in your system tray. Hover on the icon to view the current server information.
-
-## Configuration
-
-The program doesn't require any specific configuration.
+Download the installation wizard from our [releases page](https://github.com/ssapp/tarkov-server-checker/releases) and follow the steps. After the installation process completes, just start the program. No further configuration needed.
 
 ## Contributions
 
@@ -41,9 +24,6 @@ Contributions are welcome! If you'd like to enhance the Tarkov Server Checker or
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
 
-## Author
-
-This program is maintained by Vladislav Naydenov. Feel free to contact me if you have any questions or suggestions.
 
 ## Disclaimer
 
