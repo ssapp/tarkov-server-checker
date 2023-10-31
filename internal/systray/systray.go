@@ -62,18 +62,25 @@ func (s *Systray) handleQuit() {
 	systray.Quit()
 }
 
+// handleError handles the error and updates the state.
+func (s *Systray) handleError(err error, msg string) {
+	if err != nil {
+		s.updateState(formatTooltip(msg, err.Error(), ""))
+	}
+}
+
 // startTickerLoop starts the ticker loop.
 func (s *Systray) startTickerLoop() {
 	for range s.ticker.C {
 		ip, err := s.logReader.GetIP()
+		s.handleError(err, "Unable to get Server's IP address")
 		if err != nil {
-			s.updateState(formatTooltip("Unable to get Server's IP address", err.Error(), ""))
 			continue
 		}
 
 		loc, err := log.GetLocation(ip)
+		s.handleError(err, "Unable to get Server's Location")
 		if err != nil {
-			s.updateState(formatTooltip("Unable to get Server's Location", err.Error(), ""))
 			continue
 		}
 
@@ -90,7 +97,7 @@ func (s *Systray) updateState(info string) {
 // formatTooltip formats the tooltip with the specified key, value, and info.
 func formatTooltip(key, val string, info ...string) string {
 	if len(info) != 0 {
-		return fmt.Sprintf("%s (%s) | %s", key, val, strings.Join(info, " "))
+		return fmt.Sprintf("%s - %s | %s", key, val, strings.Join(info, " "))
 	}
-	return fmt.Sprintf("%s (%s)", key, val)
+	return fmt.Sprintf("%s - %s", key, val)
 }
