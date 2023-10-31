@@ -1,56 +1,96 @@
-// Package tray provides a system tray application for Tarkov Server Checker.
+// Package systray provides a system tray application for Tarkov Server Checker.
 package systray
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/getlantern/systray"
-	"github.com/ssapp/tarkov-server-checker/icon"
-	"github.com/ssapp/tarkov-server-checker/internal/eftlog"
+	"github.com/ssapp/tarkov-server-checker/internal/log"
+	"github.com/ssapp/tarkov-server-checker/resources/icon"
 )
 
-const (
-	// UpdateInterval is the interval at which the IP address is checked.
-	updateInterval = 1 * time.Second
-)
-
-// Tray represents the system tray application for Tarkov Server Checker.
+// Systray represents the system tray application for Tarkov Server Checker.
 type Systray struct {
-	log    *eftlog.Log
-	ticker *time.Ticker
+	logReader logReader
+	ticker    *time.Ticker
+	mInfo     *systray.MenuItem
+	mQuit     *systray.MenuItem
 }
 
-// New creates a new Tray instance with the specified log reader.
-func New(log *eftlog.Log) *Systray {
+type logReader interface {
+	GetIP() (string, error)
+}
+
+// NewSystray creates a new Systray instance with the specified log reader.
+func NewSystray(logReader logReader) *Systray {
 	return &Systray{
-		log:    log,
-		ticker: time.NewTicker(updateInterval),
+		logReader: logReader,
+		ticker:    time.NewTicker(time.Second),
 	}
 }
 
 // Run starts the system tray application.
-func (t *Systray) Run() {
-	systray.Run(t.onReady, nil)
+func (s *Systray) Run() {
+	systray.Run(s.onReady, s.onExit)
 }
 
 // onReady is called when the system tray is ready to be used.
-func (t *Systray) onReady() {
-	// Set the title, tooltip, and icon.
-	systray.SetTitle("Tarkov Server Checker")
+func (s *Systray) onReady() {
 	systray.SetIcon(icon.Data)
 	systray.SetTooltip("Tarkov Server Checker is starting...")
-	// Add a "Quit" menu item.
-	mQuit := systray.AddMenuItem("Quit", "Quit Tarkov Server Checker")
-	// Continuously update the IP and tooltip every minute.
-	go func() {
-		for {
-			select {
-			case <-mQuit.ClickedCh:
-				systray.Quit()
-				return
-			case <-t.ticker.C:
-				t.updateTooltip()
-			}
+
+	s.mInfo = systray.AddMenuItem("Loading...", "Loading...")
+	s.mQuit = systray.AddMenuItem("Quit", "Quit Tarkov Server Checker")
+
+	s.mInfo.Disable()
+	s.mQuit.Enable()
+
+	go s.handleQuit()
+	go s.startTickerLoop()
+}
+
+// onExit is called when the system tray application is exiting.
+func (s *Systray) onExit() {
+	s.ticker.Stop()
+}
+
+// handleQuit handles the quit menu item click.
+func (s *Systray) handleQuit() {
+	<-s.mQuit.ClickedCh
+	systray.Quit()
+}
+
+// startTickerLoop starts the ticker loop.
+func (s *Systray) startTickerLoop() {
+	for range s.ticker.C {
+		ip, err := s.logReader.GetIP()
+		if err != nil {
+			s.updateState(formatTooltip("Unable to get Server's IP address", "", err.Error()))
+			continue
 		}
-	}()
+
+		loc, err := log.GetLocation(ip)
+		if err != nil {
+			s.updateState(formatTooltip("Unable to get Server's Location", "", err.Error()))
+			continue
+		}
+
+		s.updateState(formatTooltip(ip, loc))
+	}
+}
+
+// updateState updates the menu item and tooltip with the specified info.
+func (s *Systray) updateState(info string) {
+	s.mInfo.SetTitle(info)
+	systray.SetTooltip(info)
+}
+
+// formatTooltip formats the tooltip with the specified key, value, and info.
+func formatTooltip(key, val string, info ...string) string {
+	if len(info) != 0 {
+		return fmt.Sprintf("%s (%s) | %s", key, val, strings.Join(info, " "))
+	}
+	return fmt.Sprintf("%s (%s)", key, val)
 }
