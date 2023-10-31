@@ -1,5 +1,9 @@
 # Tarkov Server Checker
 
+<p align="center">
+<img src="./resources/eft.png">
+</p>
+
 ## Overview
 
 Tarkov Server Checker is a small and lightweight tool that runs in the system tray, it retrieves and displays the most recent server's IP address and location from game's logs.
